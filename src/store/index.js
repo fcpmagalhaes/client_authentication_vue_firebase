@@ -13,8 +13,8 @@ Vue.use(Vuex);
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
-      example,
-    },
+      example
+    }
   });
 
   return Store;

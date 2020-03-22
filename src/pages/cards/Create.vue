@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  h1 Hello world!
+  h1 Create Card
 </template>
 
 <style>
@@ -8,6 +8,6 @@ div
 
 <script>
 export default {
-  name: 'PageIndex',
+  name: 'create-card'
 };
 </script>

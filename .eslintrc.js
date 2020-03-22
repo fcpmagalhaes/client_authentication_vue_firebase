@@ -30,6 +30,7 @@ module.exports = {
 
   // add your custom rules here
   rules: {
+    "comma-dangle": ["error", "never"],
     'no-param-reassign': 'off',
     'prefer-promise-reject-errors': 'off',
 

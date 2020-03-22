@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  h1 Login
+  h1 Edit Card
 </template>
 
 <style>
@@ -8,6 +8,6 @@ div
 
 <script>
 export default {
-  name: 'login'
+  name: 'edit-card'
 };
 </script>

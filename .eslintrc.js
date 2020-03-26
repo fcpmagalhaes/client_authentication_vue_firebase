@@ -38,7 +38,7 @@ module.exports = {
     'import/named': 'error',
     'import/namespace': 'error',
     'import/default': 'error',
-    'import/export': 'error',
+    // 'import/export': 'error',
     'import/extensions': 'off',
     'import/no-unresolved': 'off',
     'import/no-extraneous-dependencies': 'off',

@@ -8,7 +8,7 @@
       .col-12
         .row
           .col-12.text-center
-            .title-form.q-pb-lg Administrative Area
+            .title-form.q-pb-lg Sign Up
           .col-md-12.col-sm-12.col-xs-12
             form(
               ref='form'
@@ -43,19 +43,11 @@
                   )
               .col-12
                 .row.q-py-lg.flex-center
-                  q-btn(
+                  q-btn.q-btn-secondary(
                     :loading='submitting'
                     @click="submit"
-                    label="Log In"
+                    label="Register"
                     color="secondary"
-                  )
-              .col-12
-                .row.q-py-lg.flex-center
-                  span.title-btn.text-center.q-pb-xs Not registered?
-                  q-btn.q-btn-tertiary(
-                    label="Sign Up"
-                    to="sign-up"
-                    color="light"
                   )
 
 </template>
@@ -85,7 +77,7 @@ export default {
   },
   methods: {
     ...mapActions('user', [
-      'signIn'
+      'registerUser'
     ]),
     toLowerCaseEmail() {
       this.form.email = this.form.email.toLowerCase();
@@ -99,17 +91,17 @@ export default {
           type: 'negative'
         });
       } else {
-        const data = this.signIn(this.form);
+        const data = this.registerUser(this.form);
         if (data) {
           this.$q.notify({
-            message: 'User logged in with success. Welcome!',
+            message: 'User registered with success. Welcome!',
             timeout: 4000,
             type: 'positive'
           });
           this.$router.replace({ name: 'list-cards' });
         } else {
           this.$q.notify({
-            message: 'Error when login user!',
+            message: 'Error when registering user!',
             timeout: 4000,
             type: 'negative'
           });
@@ -131,10 +123,12 @@ export default {
     cursor pointer
   .forgot-password:hover
     opacity: 0.5
+  .title-btn
   .subscription
     width 100%
     font-size 14px
   .forgot-password
+  .title-btn
   .subscription
     color #898989
 

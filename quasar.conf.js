@@ -6,7 +6,8 @@ module.exports = function (ctx) {
     plugins: [
       'i18n',
       'axios',
-      'vuelidate'
+      'vuelidate',
+      'firebase'
     ],
     css: [
       'app.styl'
@@ -63,7 +64,6 @@ module.exports = function (ctx) {
         'QItemSide',
         'QField',
         'QInput'
-
       ],
       directives: [
         'Ripple'

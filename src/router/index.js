@@ -11,7 +11,7 @@ Vue.use(VueRouter);
  * directly export the Router instantiation
  */
 
-export default function (/* { store, ssrContext } */) {
+export default function ({ store }) {
   const Router = new VueRouter({
     scrollBehavior: () => ({ y: 0 }),
     routes,
@@ -23,11 +23,20 @@ export default function (/* { store, ssrContext } */) {
     base: process.env.VUE_ROUTER_BASE
   });
 
-  Router.beforeEach((to, from, next) => {
+  Router.beforeEach(async (to, from, next) => {
+    const user = await new Promise((resolve) => {
+      firebase.auth().onAuthStateChanged((a) => {
+        store.dispatch('user/recordUser', a.toJSON());
+        resolve(a);
+      });
+    });
+
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const isAuthenticated = firebase.auth().currentUser;
-    if (requiresAuth && !isAuthenticated) {
-      next('');
+
+    // const isAuthenticated = firebase.auth().currentUser;
+    // if (requiresAuth && !isAuthenticated) {
+    if (requiresAuth && !user) {
+      next({ path: '', query: { from: to.path } });
     } else {
       next();
     }

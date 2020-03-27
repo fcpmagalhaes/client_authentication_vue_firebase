@@ -15,6 +15,11 @@ export const registerUser = async ({ commit }, payload) => {
   }
 };
 
+export const recordUser = ({ commit }, payload) => {
+  console.log('recordUser');
+  commit('SET_USER', payload);
+};
+
 export const signOut = async ({ commit }) => {
   try {
     const data = await firebase.auth().signOut();

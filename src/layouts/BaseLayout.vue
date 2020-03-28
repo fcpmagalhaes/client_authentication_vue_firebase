@@ -15,11 +15,12 @@
           )
           q-icon( name="menu")
         q-toolbar-title
-          | Etus Challenge
+          | Quasar App With Firebase Authentication
           div(slot="subtitle")
             | Developer by: Felipe C P Magalhães
         q-btn(
           v-if='loggedIn'
+          :loading='submitting'
           color="primary"
           icon-right="person"
           label="Sign Out"
@@ -63,30 +64,49 @@ export default {
   name: 'base-layout',
   data() {
     return {
-      leftDrawerOpen: false
+      leftDrawerOpen: false,
+      submitting: false,
+      errorPayload: {
+        message: '',
+        timeout: 4000,
+        type: ''
+      }
     };
   },
   computed: {
     ...mapGetters('user', [
-      'loggedIn'
+      'loggedIn',
+      'errorHandling'
     ])
   },
   methods: {
     ...mapActions('user', [
       'signOut'
     ]),
-    signOutAndChangeRoute() {
-      const data = this.signOut();
-      console.log('logout', data);
-      if (data) {
-        this.$router.replace({ name: 'login' });
-        this.$q.notify({
-          message: 'User logged out!',
-          timeout: 4000,
-          type: 'positive'
-        });
+    activeteNotify() {
+      this.$q.notify({
+        message: this.errorPayload.message,
+        timeout: this.errorPayload.timeout,
+        type: this.errorPayload.type
+      });
+    },
+    async signOutAndChangeRoute() {
+      try {
+        this.submitting = true;
+        await this.signOut();
+      } catch (err) {
+        console.log(err);
+      } finally {
+        if (this.errorHandling === null) {
+          this.errorPayload.message = 'User logged out!';
+          this.errorPayload.type = 'positive';
+          this.$router.replace({ name: 'login' });
+        } else {
+          this.errorPayload.message = this.errorHandling.message;
+          this.errorPayload.type = 'negative';
+        }
+        this.activeteNotify();
       }
-      // return ( !loggedIn && ? true : false);
     },
     openURL
   }

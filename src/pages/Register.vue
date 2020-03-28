@@ -54,7 +54,7 @@
 
 <script>
 import { required, email } from 'vuelidate/lib/validators';
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'login',
@@ -63,6 +63,11 @@ export default {
       form: {
         email: '',
         password: ''
+      },
+      errorPayload: {
+        message: '',
+        timeout: 4000,
+        type: ''
       },
       mailHasError: null,
       passwordHasError: null,
@@ -75,6 +80,11 @@ export default {
       password: { required }
     }
   },
+  computed: {
+    ...mapGetters('user', [
+      'errorHandling'
+    ])
+  },
   methods: {
     ...mapActions('user', [
       'registerUser'
@@ -82,29 +92,36 @@ export default {
     toLowerCaseEmail() {
       this.form.email = this.form.email.toLowerCase();
     },
-    submit() {
+    activeteNotify() {
+      this.$q.notify({
+        message: this.errorPayload.message,
+        timeout: this.errorPayload.timeout,
+        type: this.errorPayload.type
+      });
+    },
+    async submit() {
       this.$v.form.$touch();
       if (this.$v.form.$error) {
-        this.$q.notify({
-          message: 'Please, review the fields in red.',
-          timeout: 4000,
-          type: 'negative'
-        });
+        this.errorPayload.message = 'Please, review the fields in red.';
+        this.errorPayload.type = 'negative';
+        this.activeteNotify();
       } else {
-        const data = this.registerUser(this.form);
-        if (data) {
-          this.$q.notify({
-            message: 'User registered with success. Welcome!',
-            timeout: 4000,
-            type: 'positive'
-          });
-          this.$router.replace({ name: 'list-cards' });
-        } else {
-          this.$q.notify({
-            message: 'Error when registering user!',
-            timeout: 4000,
-            type: 'negative'
-          });
+        try {
+          this.submitting = true;
+          await this.registerUser(this.form);
+        } catch (err) {
+          console.log(err);
+        } finally {
+          this.submitting = false;
+          if (this.errorHandling === null) {
+            this.errorPayload.message = 'User registered with success. Welcome!';
+            this.errorPayload.type = 'positive';
+            this.$router.replace({ name: 'list-cards' });
+          } else {
+            this.errorPayload.message = this.errorHandling.message;
+            this.errorPayload.type = 'negative';
+          }
+          this.activeteNotify();
         }
       }
     }

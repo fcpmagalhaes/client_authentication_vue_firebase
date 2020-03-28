@@ -11,7 +11,7 @@ Vue.use(VueRouter);
  * directly export the Router instantiation
  */
 
-export default function ({ store }) {
+export default function () {
   const Router = new VueRouter({
     scrollBehavior: () => ({ y: 0 }),
     routes,
@@ -26,16 +26,16 @@ export default function ({ store }) {
   Router.beforeEach(async (to, from, next) => {
     const user = await new Promise((resolve) => {
       firebase.auth().onAuthStateChanged((a) => {
-        store.dispatch('user/recordUser', a.toJSON());
         resolve(a);
       });
     });
+    console.log('user', user);
 
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
-    // const isAuthenticated = firebase.auth().currentUser;
-    // if (requiresAuth && !isAuthenticated) {
-    if (requiresAuth && !user) {
+    const isAuthenticated = firebase.auth().currentUser;
+    if (requiresAuth && !isAuthenticated && !user) {
+    // if (requiresAuth && !user) {
       next({ path: '', query: { from: to.path } });
     } else {
       next();
@@ -44,3 +44,22 @@ export default function ({ store }) {
 
   return Router;
 }
+
+
+// Router.beforeEach(async (to, from, next) => {
+//   const user = await new Promise((resolve) => {
+//     firebase.auth().onAuthStateChanged((a) => {
+//       resolve(a);
+//     });
+//   });
+
+//   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+//   // const isAuthenticated = firebase.auth().currentUser;
+//   // if (requiresAuth && !isAuthenticated) {
+//   if (requiresAuth && !user) {
+//     next({ path: '', query: { from: to.path } });
+//   } else {
+//     next();
+//   }
+// });

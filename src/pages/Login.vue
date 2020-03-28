@@ -50,8 +50,9 @@
                     color="secondary"
                   )
               .col-12
-                .row.q-py-lg.flex-center
+                .row.q-pt-lg.flex-center
                   span.title-btn.text-center.q-pb-xs Not registered?
+                .row.flex-center
                   q-btn.q-btn-tertiary(
                     label="Sign Up"
                     to="sign-up"
@@ -62,7 +63,7 @@
 
 <script>
 import { required, email } from 'vuelidate/lib/validators';
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'login',
@@ -71,6 +72,11 @@ export default {
       form: {
         email: '',
         password: ''
+      },
+      errorPayload: {
+        message: '',
+        timeout: 4000,
+        type: ''
       },
       mailHasError: null,
       passwordHasError: null,
@@ -83,6 +89,11 @@ export default {
       password: { required }
     }
   },
+  computed: {
+    ...mapGetters('user', [
+      'errorHandling'
+    ])
+  },
   methods: {
     ...mapActions('user', [
       'signIn'
@@ -90,29 +101,36 @@ export default {
     toLowerCaseEmail() {
       this.form.email = this.form.email.toLowerCase();
     },
-    submit() {
+    activeteNotify() {
+      this.$q.notify({
+        message: this.errorPayload.message,
+        timeout: this.errorPayload.timeout,
+        type: this.errorPayload.type
+      });
+    },
+    async submit() {
       this.$v.form.$touch();
       if (this.$v.form.$error) {
-        this.$q.notify({
-          message: 'Please, review the fields in red.',
-          timeout: 4000,
-          type: 'negative'
-        });
+        this.errorPayload.message = 'Please, review the fields in red.';
+        this.errorPayload.type = 'negative';
+        this.activeteNotify();
       } else {
-        const data = this.signIn(this.form);
-        if (data) {
-          this.$q.notify({
-            message: 'User logged in with success. Welcome!',
-            timeout: 4000,
-            type: 'positive'
-          });
-          this.$router.replace({ name: 'list-cards' });
-        } else {
-          this.$q.notify({
-            message: 'Error when login user!',
-            timeout: 4000,
-            type: 'negative'
-          });
+        try {
+          this.submitting = true;
+          await this.signIn(this.form);
+        } catch (err) {
+          console.log(err);
+        } finally {
+          this.submitting = false;
+          if (this.errorHandling === null) {
+            this.errorPayload.message = 'Logado';
+            this.errorPayload.type = 'positive';
+            this.$router.replace({ name: 'list-cards' });
+          } else {
+            this.errorPayload.message = this.errorHandling.message;
+            this.errorPayload.type = 'negative';
+          }
+          this.activeteNotify();
         }
       }
     }
@@ -124,17 +142,11 @@ export default {
 #login-form
   width: 300px;
   margin: 0 auto;
-  .forgot-password
-    width 100%
-    font-size 10px
-    text-align right
-    cursor pointer
-  .forgot-password:hover
-    opacity: 0.5
+  .title-btn
   .subscription
     width 100%
     font-size 14px
-  .forgot-password
+  .title-btn
   .subscription
     color #898989
 
